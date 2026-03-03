@@ -53,18 +53,18 @@ $(document).ready(function(){
 	 };
 	 
 	 
-	 isFloat = function(value){
+	 var isFloat = function(value){
 		 if(value == "NaN" || value.toString() == "NaN")
 			 return false;
 		 value = parseFloat(value);
-		 if(isNaN(value) == true &&  Number(value) === value && value % 1 !== 0)
+		 if(isNaN(value))
 			 return false;
 		 else {
 			 return true;
 		 }
 	 };
 	 
-	 isValidDate = function(d) {
+	 var isValidDate = function(d) {
 	   return d instanceof Date && !isNaN(d);
 	 };
 	 
@@ -169,7 +169,7 @@ $(document).ready(function(){
 		 				     <th scope="col">$ Balance</th>
 						    </tr>
 					</thead>
-		 			 <tbody></center>
+		 			 <tbody>
 		 		
 		 
 		 
@@ -177,7 +177,8 @@ $(document).ready(function(){
 		 var grand = 0.00;
 		 var interest_amount = parseFloat(0.00);
 		 var principal_interval_amount = parseFloat(0.00);
-		 var begin_loan_amount = parseFloat(loan_amount) ;
+		 var original_loan_amount = parseFloat(loan_amount);
+		 var begin_loan_amount = original_loan_amount;
 		 loan_amount = round(loan_amount,2);
 		 var current_date = start_date;
 		 
@@ -192,7 +193,8 @@ $(document).ready(function(){
 			  var dateoutput =  null;
 			 
 			 while(loan_amount > 0.00){
-				 
+				 begin_loan_amount = loan_amount;
+
 				 dateoutput =  new Date(current_date.getTime());
 
 				  
@@ -276,14 +278,14 @@ $(document).ready(function(){
 				<tr>
 				      <th scope="row">Grand Total </th>
 		  		      <td><b>`+dateoutput.toLocaleDateString("en-US", options)+`</b></td>
-				      <td><b>`+round(begin_loan_amount,2)+`</b></td>
+				      <td><b>`+round(original_loan_amount,2)+`</b></td>
 		  		      <td><b>`+round(grand,2)+`</b></td>
-			 		<td><b>`+round(parseFloat(grand) - parseFloat(begin_loan_amount),2)+`</b></td>
-		  		      <td><b>`+round(begin_loan_amount,2)+`</b></td>
+			 		<td><b>`+round(parseFloat(grand) - parseFloat(original_loan_amount),2)+`</b></td>
+		  		      <td><b>`+round(original_loan_amount,2)+`</b></td>
 			 	      <td><b>`+round(loan_amount,2)+`</b></td>
 				</tr>
 				</tbody>
-			 	</table>
+			 	</table></center>
 			 <h3 style="text-align:center;"> $Total is: `+grand+`</h3>
 		  `;
 
