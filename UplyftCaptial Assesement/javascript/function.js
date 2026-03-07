@@ -38,18 +38,17 @@ $(document).ready(function(){
 	 } ;
 
 	 //Validation of the DatePicker 
-	 var weekend=function(day){
-		 if(day.getDay() == 6 || day.getDay() == 0){
-			
+	 var weekend = function(day) {
+		 if (day.getDay() == 6 || day.getDay() == 0) {
 			 return true;
-		 }else{
+		 } else {
 			 return false;
 		 }
-	 }
-	 Date.prototype.addDays = function(days) {
-	     var date = new Date(this.valueOf());
-	     date.setDate(date.getDate() + days);
-	     return date;
+	 };
+	 var addDays = function(date, days) {
+	     var result = new Date(date.valueOf());
+	     result.setDate(result.getDate() + days);
+	     return result;
 	 };
 	 
 	 
@@ -114,7 +113,7 @@ $(document).ready(function(){
 		 }
 		 
 		 //Validating Interest Rate
-		 if( interest_rate == "" || isFloat(interest_rate) == false  || interest_rate < 0.00 || interest_rate >= 100.00 ){
+		 if( interest_rate == "" || isFloat(interest_rate) == false  || parseFloat(interest_rate) < 0.00 || parseFloat(interest_rate) >= 100.00 ){
 		 	ir =false;
 			$("#interestTextError").find(".message").show();
 		 }else{
@@ -156,8 +155,8 @@ $(document).ready(function(){
 		  //this where the Calculation and the displaying of the schdule  appears
 		 var duration_counter = 1;
 		 var schedulelist = `
-		 		 <center><h2>RE-PAYMENT SCHEDULE LIST</h2>
-		 		<table style="" class="result_set table-bordered table-striped" >
+		 		 <h2 class="text-center">RE-PAYMENT SCHEDULE LIST</h2>
+		 		<table class="table result_set table-bordered table-striped">
 		 			<thead>
 						<tr>
 						      <th scope="col">Event</th>
@@ -180,7 +179,7 @@ $(document).ready(function(){
 		 var original_loan_amount = parseFloat(loan_amount);
 		 var begin_loan_amount = original_loan_amount;
 		 loan_amount = round(loan_amount,2);
-		 var current_date = start_date;
+		 var current_date = new Date(start_date.getTime());
 		 
 
 
@@ -195,34 +194,33 @@ $(document).ready(function(){
 			 while(loan_amount > 0.00){
 				 begin_loan_amount = loan_amount;
 
-				 dateoutput =  new Date(current_date.getTime());
-
-				  
-				  //Basic Calculation of  the Interest Amount By Month, Weekly and Daily  
+				  //Advance the date first, then capture it as the payment due date
 				 if(installment_interval == "Monthly"){
-					 
-	   				  interest_amount= (loan_amount * interest_rate) / 12;
-	   				  interest_amount =round(interest_amount,2);
-					  current_date.setMonth( current_date.getMonth()+1);
+					  current_date.setMonth(current_date.getMonth() + 1);
 					  while(weekend(current_date) == true){
-					   current_date = current_date.addDays(1);
+					   current_date = addDays(current_date, 1);
 				   	 }
-				 }else if(installment_interval == "Weekly"){
-					  interest_amount= (loan_amount * interest_rate) / (12 * 4);
-					  interest_amount =round(interest_amount,2);
-					  current_date = current_date.addDays(7);
+				 } else if(installment_interval == "Weekly"){
+					  current_date = addDays(current_date, 7);
 					  while(weekend(current_date) == true){
-					   current_date = current_date.addDays(1);
+					   current_date = addDays(current_date, 1);
+				   	 }
+				 } else if(installment_interval == "Daily"){
+					  current_date = addDays(current_date, 1);
+					  while(weekend(current_date) == true){
+					   current_date = addDays(current_date, 1);
 				   	 }
 				 }
-				 else if(installment_interval == "Daily"){
-	   				  interest_amount= (loan_amount * interest_rate) / (12 * 4 * 7);
-	   				  interest_amount =round(interest_amount,2);
-					   current_date =  current_date.addDays(1);
-					
-					  while(weekend(current_date) == true){
-					   current_date = current_date.addDays(1);
-				   	 }
+
+				 dateoutput = new Date(current_date.getTime());
+
+				  //Basic Calculation of  the Interest Amount By Month, Weekly and Daily
+				 if(installment_interval == "Monthly"){
+	   				  interest_amount = round((loan_amount * interest_rate) / 12, 2);
+				 } else if(installment_interval == "Weekly"){
+					  interest_amount = round((loan_amount * interest_rate) / (12 * 4), 2);
+				 } else if(installment_interval == "Daily"){
+	   				  interest_amount = round((loan_amount * interest_rate) / (12 * 4 * 7), 2);
 				 }
 				  
 				  
@@ -243,8 +241,7 @@ $(document).ready(function(){
  				 
 
  				   //quick calculation check to verify everything
-				  var tmp = round(parseFloat(installment_amount) + parseFloat(grand) ,2);
-				  grand = tmp
+				  grand = round(parseFloat(installment_amount) + parseFloat(grand), 2);
 			 if(round(interest_amount,2) > round(installment_amount,2) ||  round(principal_interval_amount,2) < 0.00 || !isFloat(begin_loan_amount) || !isFloat(installment_amount) || !isFloat(interest_amount) || !isFloat(principal_interval_amount)){
 					  alert("An unexpected error occured, Please check inputs.");
 					$("#result").html("");
@@ -285,7 +282,7 @@ $(document).ready(function(){
 			 	      <td><b>`+round(loan_amount,2)+`</b></td>
 				</tr>
 				</tbody>
-			 	</table></center>
+			 	</table>
 			 <h3 style="text-align:center;"> $Total is: `+grand+`</h3>
 		  `;
 

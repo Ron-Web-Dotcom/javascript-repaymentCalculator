@@ -40,10 +40,10 @@
         <div class="form-group" id="loanTextError">
             <div class="row">
                 <div class="col-25">
-              <label for="loanamount">Loan Amount:</label>
+              <label for="loanInput">Loan Amount:</label>
               </div>
               <div class="col-75">
-            <input type="text"  id="loanInput" placeholder="Please Enter Loan Amount..">
+            <input type="text" inputmode="decimal" id="loanInput" placeholder="Please Enter Loan Amount..">
             <label class="message"> Invalid Loan Amount</label>
               </div>
           </div>
@@ -52,10 +52,10 @@
            <div class="form-group" id="installmentTextError">
             <div class="row">
                 <div class="col-25">
-            <label for="installmentamount">installment Amount:</label>
+            <label for="installmentInput">Installment Amount:</label>
                 </div>
                 <div class="col-75">
-            <input type="text"  id="installmentInput" placeholder="Please Enter Installment Amount..">
+            <input type="text" inputmode="decimal" id="installmentInput" placeholder="Please Enter Installment Amount..">
             <label class="message"> Invalid Installment Amount </label>
           </div>
             </div>
@@ -64,10 +64,10 @@
            <div class="form-group" id="interestTextError">
             <div class="row">
                 <div class="col-25">
-            <label for="interestrate">Interest Rate:</label>
+            <label for="interestInput">Interest Rate:</label>
                 </div>
                 <div class="col-75">
-            <input type="text"  id="interestInput" placeholder="Please Enter Interest Rate..">
+            <input type="text" inputmode="decimal" id="interestInput" placeholder="Please Enter Interest Rate..">
             <label class="message"> Invalid Interest Rate</label>
           </div>
             </div>
@@ -76,7 +76,7 @@
           <div class="form-group" id="intervalTextError">
             <div class="row">
                 <div class="col-25">  
-              <label for="installmentinterval">Installment Interval:</label>
+              <label for="intervalInput">Installment Interval:</label>
                 </div>
                 <div class="col-75">
               <select  id="intervalInput">
@@ -92,7 +92,7 @@
            <div class="form-group" id="dateTextError">
             <div class="row">
                 <div class="col-25">  
-              <label class="control-label" for="startdate">Date:</label>
+              <label class="control-label" for="dateInput">Date:</label>
                 </div>
                 <div class="col-75">
               <input class="startdate" id="dateInput" name="date" placeholder="MM/DD/YYYY" type="text"/>
