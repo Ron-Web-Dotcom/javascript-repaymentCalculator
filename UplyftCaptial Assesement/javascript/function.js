@@ -66,7 +66,19 @@ $(document).ready(function(){
 	 var isValidDate = function(d) {
 	   return d instanceof Date && !isNaN(d);
 	 };
-	 
+
+	 // Format a number as a USD currency string
+	 var formatCurrency = function(num) {
+	   return parseFloat(num).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+	 };
+
+	 // Reset button: clear inputs and wipe results
+	 $("#ResetForm").click(function() {
+	   $(".repayment")[0].reset();
+	   $("#result").html("");
+	   $("#loanTextError, #installmentTextError, #interestTextError, #intervalTextError, #dateTextError")
+	     .find(".message").hide();
+	 });
 
 	 //FUNCTION OF THE BUTTON NAME CALCULATOR
      $("#RunProgram").click(function(){
@@ -173,6 +185,7 @@ $(document).ready(function(){
 		 
 		 
 		 `;
+		 var csvData = "Event,Date of Payment,$ Loan,$ Payment,$ Interest,$ Principal,$ Balance\n";
 		 var grand = 0.00;
 		 var interest_amount = parseFloat(0.00);
 		 var principal_interval_amount = parseFloat(0.00);
@@ -264,31 +277,106 @@ $(document).ready(function(){
 						    </tr>
 				  
 				  `;
-				
-	
-				  duration_counter +=  1;
+
+				  csvData += "Payment " + duration_counter + ","
+				    + '"' + dateoutput.toLocaleDateString("en-US", options) + '"' + ","
+				    + round(begin_loan_amount, 2) + ","
+				    + round(installment_amount, 2) + ","
+				    + interest_amount + ","
+				    + round(principal_interval_amount, 2) + ","
+				    + round(loan_amount, 2) + "\n";
+
+				  duration_counter += 1;
 			 }
 
 			 
-		  //This is where  when ever calculation is check and done the schedule grand payment is  shown	 
+		  // Derived summary values
+		  var paymentCount = duration_counter - 1;
+		  var totalInterest = round(parseFloat(grand) - parseFloat(original_loan_amount), 2);
+		  var payoffDate = dateoutput.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' });
+
+		  // Summary stats card (injected above the table)
+		  var summaryHtml = `
+		    <div class="summary-card">
+		      <div class="stat-box">
+		        <div class="stat-label">Loan Amount</div>
+		        <div class="stat-value">$`+formatCurrency(original_loan_amount)+`</div>
+		      </div>
+		      <div class="stat-box">
+		        <div class="stat-label">Total Paid</div>
+		        <div class="stat-value">$`+formatCurrency(grand)+`</div>
+		      </div>
+		      <div class="stat-box">
+		        <div class="stat-label">Total Interest</div>
+		        <div class="stat-value">$`+formatCurrency(totalInterest)+`</div>
+		      </div>
+		      <div class="stat-box">
+		        <div class="stat-label">No. of Payments</div>
+		        <div class="stat-value">`+paymentCount+`</div>
+		      </div>
+		      <div class="stat-box">
+		        <div class="stat-label">Payoff Date</div>
+		        <div class="stat-value">`+payoffDate+`</div>
+		      </div>
+		    </div>
+		  `;
+
+		  // Grand total row closes the table
 		  schedulelist += `
 				<tr>
 				      <th scope="row">Grand Total </th>
 		  		      <td><b>`+dateoutput.toLocaleDateString("en-US", options)+`</b></td>
 				      <td><b>`+round(original_loan_amount,2)+`</b></td>
 		  		      <td><b>`+round(grand,2)+`</b></td>
-			 		<td><b>`+round(parseFloat(grand) - parseFloat(original_loan_amount),2)+`</b></td>
+			 		<td><b>`+totalInterest+`</b></td>
 		  		      <td><b>`+round(original_loan_amount,2)+`</b></td>
 			 	      <td><b>`+round(loan_amount,2)+`</b></td>
 				</tr>
 				</tbody>
 			 	</table>
-			 <h3 style="text-align:center;"> $Total is: `+grand+`</h3>
 		  `;
 
+		  // CSV grand total row
+		  csvData += "Grand Total,"
+		    + '"' + dateoutput.toLocaleDateString("en-US", options) + '"' + ","
+		    + round(original_loan_amount, 2) + ","
+		    + round(grand, 2) + ","
+		    + totalInterest + ","
+		    + round(original_loan_amount, 2) + ","
+		    + round(loan_amount, 2) + "\n";
 
-		  // Call back the ID in the html  to show the result of the schedule table.
-			 $("#result").html(schedulelist);
+		  // Action buttons (Print and Export CSV)
+		  var buttonsHtml = `
+		    <div class="action-buttons">
+		      <button class="btn btn-outline-secondary" id="printBtn">
+		        <i class="fa fa-print"></i> Print
+		      </button>
+		      <button class="btn btn-outline-success" id="exportBtn">
+		        <i class="fa fa-download"></i> Export CSV
+		      </button>
+		    </div>
+		  `;
+
+		  // Render everything into the result div
+		  $("#result").html(summaryHtml + schedulelist + buttonsHtml);
+
+		  // Print button
+		  $("#printBtn").click(function() {
+		    window.print();
+		  });
+
+		  // Export CSV button
+		  $("#exportBtn").click(function() {
+		    var blob = new Blob([csvData], { type: "text/csv;charset=utf-8;" });
+		    var url = URL.createObjectURL(blob);
+		    var link = document.createElement("a");
+		    link.href = url;
+		    link.download = "repayment-schedule.csv";
+		    document.body.appendChild(link);
+		    link.click();
+		    document.body.removeChild(link);
+		    URL.revokeObjectURL(url);
+		  });
 		 }
 		   
 		   

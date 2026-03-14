@@ -74,6 +74,51 @@ body{
   h1, h2 {
     text-align: center;
   }
+  /* Summary stats card */
+  .summary-card {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 24px 0 16px;
+    justify-content: center;
+  }
+  .summary-card .stat-box {
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 14px 22px;
+    text-align: center;
+    min-width: 150px;
+    flex: 1 1 150px;
+  }
+  .summary-card .stat-label {
+    font-size: 0.75rem;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
+  }
+  .summary-card .stat-value {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #343a40;
+  }
+
+  /* Action buttons row (Print / Export CSV) */
+  .action-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin: 12px 0 24px;
+  }
+
+  /* Print: hide everything except the schedule and summary */
+  @media print {
+    nav, h1, .container, .action-buttons { display: none !important; }
+    body { background: none; }
+    #result { padding: 0; }
+  }
+
   /*Table CSS*/
   @media 
 only screen and (max-width: 760px),
