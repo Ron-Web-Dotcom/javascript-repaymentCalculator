@@ -319,6 +319,10 @@ $(document).ready(function(){
 		        <div class="stat-value">`+payoffDate+`</div>
 		      </div>
 		    </div>
+		    <div class="chart-wrapper">
+		      <h6 class="text-center text-muted">Principal vs Interest</h6>
+		      <canvas id="loanChart"></canvas>
+		    </div>
 		  `;
 
 		  // Grand total row closes the table
@@ -359,6 +363,38 @@ $(document).ready(function(){
 
 		  // Render everything into the result div
 		  $("#result").html(summaryHtml + schedulelist + buttonsHtml);
+
+		  // Donut chart: Principal vs Interest
+		  var ctx = document.getElementById("loanChart").getContext("2d");
+		  new Chart(ctx, {
+		    type: "doughnut",
+		    data: {
+		      labels: ["Principal", "Total Interest"],
+		      datasets: [{
+		        data: [round(original_loan_amount, 2), totalInterest],
+		        backgroundColor: ["#28a745", "#ffc107"],
+		        borderColor: ["#fff", "#fff"],
+		        borderWidth: 3
+		      }]
+		    },
+		    options: {
+		      responsive: true,
+		      plugins: {
+		        legend: { position: "bottom" },
+		        tooltip: {
+		          callbacks: {
+		            label: function(context) {
+		              return context.label + ": $" + parseFloat(context.parsed)
+		                .toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+		            }
+		          }
+		        }
+		      }
+		    }
+		  });
+
+		  // Smooth scroll to results
+		  $("html, body").animate({ scrollTop: $("#result").offset().top - 20 }, 600);
 
 		  // Print button
 		  $("#printBtn").click(function() {

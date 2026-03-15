@@ -17,6 +17,12 @@ body{
     border-radius: 4px;
     resize: vertical;
   }
+
+  /* Allow Bootstrap input-group to control width of its inner input */
+  .input-group input[type=text] {
+    width: auto;
+    flex: 1 1 auto;
+  }
   
   label {
     padding: 12px 12px 12px 0;
@@ -104,6 +110,15 @@ body{
     color: #343a40;
   }
 
+  /* Donut chart wrapper */
+  .chart-wrapper {
+    max-width: 260px;
+    margin: 0 auto 20px;
+  }
+  .chart-wrapper h6 {
+    margin-bottom: 8px;
+  }
+
   /* Action buttons row (Print / Export CSV) */
   .action-buttons {
     display: flex;
@@ -146,14 +161,23 @@ only screen and (max-width: 760px),
 		padding-left: 50%; 
 	}
 	
-	td:before { 
+	td:before {
 		/* Now like a table header */
 		position: absolute;
 		/* Top/left values mimic padding */
 		top: 6px;
 		left: 6px;
-		width: 45%; 
-		padding-right: 10px; 
+		width: 45%;
+		padding-right: 10px;
 		white-space: nowrap;
+		font-weight: 600;
 	}
+
+	/* Column labels for the repayment schedule on small screens */
+	.result_set td:nth-of-type(1):before { content: "Date of Payment"; }
+	.result_set td:nth-of-type(2):before { content: "$ Loan"; }
+	.result_set td:nth-of-type(3):before { content: "$ Payment"; }
+	.result_set td:nth-of-type(4):before { content: "$ Interest"; }
+	.result_set td:nth-of-type(5):before { content: "$ Principal"; }
+	.result_set td:nth-of-type(6):before { content: "$ Balance"; }
 }
