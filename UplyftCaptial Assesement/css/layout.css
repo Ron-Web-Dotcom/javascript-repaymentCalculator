@@ -1,5 +1,20 @@
-/* CSS the body of the page*/
+/**
+ * layout.css — Custom styles for the Loan Repayment Calculator
+ *
+ * Sections:
+ *   1. Page background & box-sizing reset
+ *   2. Form input / select / label base styles
+ *   3. Bootstrap input-group width fix (% addon)
+ *   4. Layout columns (.col-25 / .col-75) and clearfix
+ *   5. Headings
+ *   6. Summary stats card
+ *   7. Donut chart wrapper
+ *   8. Action buttons row (Print / Export CSV)
+ *   9. Print media query
+ *  10. Responsive table (stacked rows on small screens)
+ */
 
+/* --- 1. Page background & box-sizing reset --- */
 body{
     background-image: url('background.png');
     background-repeat: no-repeat;
@@ -10,6 +25,7 @@ body{
     box-sizing: border-box;
   }
   
+/* --- 2. Form input / select / label base styles --- */
   input[type=text], select, textarea {
     width: 100%;
     padding: 12px;
@@ -18,7 +34,10 @@ body{
     resize: vertical;
   }
 
-  /* Allow Bootstrap input-group to control width of its inner input */
+  /* --- 3. Bootstrap input-group width fix ---
+     The global rule above sets width:100% on all text inputs, which breaks
+     Bootstrap's flex-based input-group (e.g. the % suffix on the interest field).
+     This override restores flex behaviour inside input-groups. */
   .input-group input[type=text] {
     width: auto;
     flex: 1 1 auto;
@@ -51,6 +70,7 @@ body{
     padding: 20px;
   }
   
+/* --- 4. Two-column form layout (.col-25 label / .col-75 input) --- */
   .col-25 {
     float: left;
     width: 25%;
@@ -77,10 +97,11 @@ body{
       margin-top: 0;
     }
   }
+/* --- 5. Headings --- */
   h1, h2 {
     text-align: center;
   }
-  /* Summary stats card */
+  /* --- 6. Summary stats card --- */
   .summary-card {
     display: flex;
     flex-wrap: wrap;
@@ -110,7 +131,7 @@ body{
     color: #343a40;
   }
 
-  /* Donut chart wrapper */
+  /* --- 7. Donut chart wrapper --- */
   .chart-wrapper {
     max-width: 260px;
     margin: 0 auto 20px;
@@ -119,7 +140,7 @@ body{
     margin-bottom: 8px;
   }
 
-  /* Action buttons row (Print / Export CSV) */
+  /* --- 8. Action buttons row (Print / Export CSV) --- */
   .action-buttons {
     display: flex;
     gap: 10px;
@@ -127,14 +148,17 @@ body{
     margin: 12px 0 24px;
   }
 
-  /* Print: hide everything except the schedule and summary */
+  /* --- 9. Print media query — hide chrome, show only schedule --- */
   @media print {
     nav, h1, .container, .action-buttons { display: none !important; }
     body { background: none; }
     #result { padding: 0; }
   }
 
-  /*Table CSS*/
+  /* --- 10. Responsive table ---
+     On screens narrower than 760 px, the schedule table reflows into labelled
+     single-column rows so each cell is readable without horizontal scrolling.
+     The :before pseudo-elements inject the column name as a visible label. */
   @media 
 only screen and (max-width: 760px),
 (min-device-width: 768px) and (max-device-width: 1024px)  {

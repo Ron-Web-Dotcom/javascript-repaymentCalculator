@@ -1,17 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
- <!--Responsive Web Form-->
+ <!--
+  Loan Repayment Calculator
+  Author  : Ron Taylor
+  Date    : March 18, 2021
+
+  Dependencies (all loaded from CDN — internet required on first load):
+    Bootstrap 4.5.2      — grid, form controls, utility classes
+    Font Awesome 4.7.0   — icons on Print / Export buttons
+    jQuery 3.5.1         — DOM helpers, events, animation
+    Popper.js 1.16.1     — Bootstrap dropdown/tooltip positioning
+    Chart.js 3.9.1       — doughnut chart (Principal vs Interest)
+    Bootstrap Datepicker 1.4.1 — calendar date picker widget
+    css/layout.css       — custom layout, summary card, print rules
+    javascript/function.js — all application logic
+-->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Loan Calculator</title>
-<!-- Bootsstrap style sheet-->
+<!-- Bootstrap 4 + Font Awesome -->
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<!-- jQuery → Popper → Bootstrap JS (order matters) -->
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<!-- Chart.js must load before function.js uses it -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<!-- Bootstrap Datepicker CSS (loaded before its JS at bottom of body) -->
 	 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/css/bootstrap-datepicker3.css"/>
 <link  rel="stylesheet" href="css/layout.css"/>
 

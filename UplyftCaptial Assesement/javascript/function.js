@@ -1,28 +1,35 @@
-/* Author : Ron Taylor 
-*
-*
-* DATE  MARCH 18,2021 
-*/
+/**
+ * Loan Repayment Calculator — Application Logic
+ *
+ * Author : Ron Taylor
+ * Date   : March 18, 2021
+ *
+ * Responsibilities:
+ *   - Validate all five form inputs (loan amount, installment, interest rate,
+ *     interval, and start date) and show/hide inline error messages.
+ *   - Compute an amortisation schedule that skips weekend payment dates.
+ *   - Render a summary stats card, a Chart.js doughnut chart, the full
+ *     repayment schedule table, and Print / Export CSV action buttons.
+ */
 
-//prevents the default action
 $(document).ready(function(){
-	
+
+	// Prevent the native form submission so all handling stays in JS.
 	$('form').submit(function (evt) {
-	   evt.preventDefault(); 
+	   evt.preventDefault();
 
 	});
-	
-	//call the ID of the div class for each form group
+
+	// Hide all inline validation messages on page load.
 	 $("#loanTextError").find(".message").hide();
  	$("#installmentTextError").find(".message").hide();
 	$("#interestTextError").find(".message").hide();
 	$("#intervalTextError").find(".message").hide();
  	$("#dateTextError").find(".message").hide();
-	
-//The data that is you submitted it is represented by the input name date
-     var date_input=$('input[name="date"]'); 
 
-//DatePicker Should Close Automatically
+	// Attach the Bootstrap Datepicker to the date input.
+     var date_input=$('input[name="date"]');
+
      var container=$('.repay').length>0 ? $('.repay').parent() : "body";
      var options={
        format: 'mm/dd/yyyy',
@@ -32,12 +39,18 @@ $(document).ready(function(){
      };
      date_input.datepicker(options);
 	 
-	//Round off the  value  of the deciemals when calculating 
+	/**
+	 * Round `value` to `decimals` decimal places using the exponential trick,
+	 * which avoids floating-point drift from Math.round on mid-point values.
+	 */
 	var round=function(value, decimals) {
 	   return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
 	 } ;
 
-	 //Validation of the DatePicker 
+	 /**
+	  * Return true if `day` falls on a Saturday (6) or Sunday (0).
+	  * Used to skip non-business days when advancing payment dates.
+	  */
 	 var weekend = function(day) {
 		 if (day.getDay() == 6 || day.getDay() == 0) {
 			 return true;
@@ -45,13 +58,21 @@ $(document).ready(function(){
 			 return false;
 		 }
 	 };
+
+	 /**
+	  * Return a new Date that is `days` calendar days after `date`.
+	  * The original Date object is never mutated.
+	  */
 	 var addDays = function(date, days) {
 	     var result = new Date(date.valueOf());
 	     result.setDate(result.getDate() + days);
 	     return result;
 	 };
-	 
-	 
+
+	 /**
+	  * Return true if `value` can be parsed as a finite number.
+	  * Explicitly rejects the string "NaN" that parseFloat would not catch.
+	  */
 	 var isFloat = function(value){
 		 if(value == "NaN" || value.toString() == "NaN")
 			 return false;
@@ -62,17 +83,18 @@ $(document).ready(function(){
 			 return true;
 		 }
 	 };
-	 
+
+	 /** Return true if `d` is a valid Date object (not Invalid Date). */
 	 var isValidDate = function(d) {
 	   return d instanceof Date && !isNaN(d);
 	 };
 
-	 // Format a number as a USD currency string
+	 /** Format a number as a locale USD string, always with two decimal places. */
 	 var formatCurrency = function(num) {
 	   return parseFloat(num).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 	 };
 
-	 // Reset button: clear inputs and wipe results
+	 // Reset: clear every form field, wipe the result area, and hide all error messages.
 	 $("#ResetForm").click(function() {
 	   $(".repayment")[0].reset();
 	   $("#result").html("");
@@ -80,28 +102,28 @@ $(document).ready(function(){
 	     .find(".message").hide();
 	 });
 
-	 //FUNCTION OF THE BUTTON NAME CALCULATOR
+	 // Calculate button: validate inputs, run the amortisation loop, render results.
      $("#RunProgram").click(function(){
-           
-		   // get necessary data from the textbox by the Id of the text box
+
+		 // --- 1. Read raw values from the form ---
 		 var loan_amount = $("#loanInput").val();
 		 var installment_amount = $("#installmentInput").val();
 		 var interest_rate = $("#interestInput").val();
 		 var start_date = new Date($("#dateInput").val());
 		 var installment_interval = $('#intervalInput').find(":selected").text();
-		 
 
-		  //When Data is Inputted the Data is being validated 
+		 // Strip leading/trailing whitespace from text inputs.
 		 loan_amount = loan_amount.trim();
 		 installment_amount = installment_amount.trim();
 		 interest_rate = interest_rate.trim();
-		 
 
-		 //When Validating it checks the statement if the  statement is true or false  
+		 // Validation flags — each flips to false if its field fails.
 		 var lv = true;var ia = true;var ir = true;var ii = true;var sd = true;
 		 
 		
-		 //validating Loan Amount
+		 // --- 2. Validate each field and show/hide its error message ---
+
+		 // Loan must be a positive finite number.
 		 if(loan_amount == "" || isFloat(loan_amount) == false || round(loan_amount,2) <= 0.00  || round(loan_amount,2) >= Number.POSITIVE_INFINITY){
 			 lv = false;
 			 $("#loanTextError").find(".message").show();
@@ -113,7 +135,7 @@ $(document).ready(function(){
 		 }
 
 
-		 //Validating Installment Amount
+		 // Installment must be positive and strictly less than the loan amount.
 		 if( installment_amount == "" || isFloat(installment_amount)== false || round(installment_amount,2) <= 0.00 || round(installment_amount,2) >= round(loan_amount,2) ){
 		 	 ia = false;
 			$("#installmentTextError").find(".message").show();
@@ -124,7 +146,7 @@ $(document).ready(function(){
 			 
 		 }
 		 
-		 //Validating Interest Rate
+		 // Interest rate: 0 % is allowed (interest-free loan); 100 % and above are rejected.
 		 if( interest_rate == "" || isFloat(interest_rate) == false  || parseFloat(interest_rate) < 0.00 || parseFloat(interest_rate) >= 100.00 ){
 		 	ir =false;
 			$("#interestTextError").find(".message").show();
@@ -134,7 +156,7 @@ $(document).ready(function(){
 		 }
 		 
 		 
-		 //Validating  Installment Interval
+		 // Interval must be one of the three dropdown values.
 		 if(installment_interval == "" || (installment_interval  != "Weekly" && installment_interval  != "Daily" && installment_interval  != "Monthly") ){
 		 	ii =false;
 			$("#intervalTextError").find(".message").show();
@@ -144,7 +166,7 @@ $(document).ready(function(){
 		 }
 
 		 
-		 //Validating the date as which the transaction started
+		 // Start date must parse to a real calendar date.
 		 if(isValidDate(start_date) == false){
 			  sd = false;
 		 	$("#dateTextError").find(".message").show();
@@ -154,7 +176,7 @@ $(document).ready(function(){
 		 }
 		 
 
-		 //Combination of the Validationg Completed Before Displaying Result
+		 // --- 3. All fields valid — run the amortisation loop ---
 		 if(lv && sd && ii && ia && ir){
 			 $("#loanTextError").find(".message").hide();
 		 	$("#installmentTextError").find(".message").hide();
@@ -164,7 +186,7 @@ $(document).ready(function(){
 		 
 		
 		 
-		  //this where the Calculation and the displaying of the schdule  appears
+		  // Build the schedule HTML and CSV string simultaneously inside the while loop.
 		 var duration_counter = 1;
 		 var schedulelist = `
 		 		 <h2 class="text-center">RE-PAYMENT SCHEDULE LIST</h2>
@@ -196,10 +218,10 @@ $(document).ready(function(){
 		 
 
 
-		 //Formatting the Date Option
+		 // Date format used for every row in the table and the grand total.
 		var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
 
-		 	//Basic Calculation of the interest Rate 
+		 	// Convert percentage to decimal (e.g. 6 → 0.06).
 			 interest_rate =(interest_rate / 100);
 			 
 			  var dateoutput =  null;
@@ -227,7 +249,8 @@ $(document).ready(function(){
 
 				 dateoutput = new Date(current_date.getTime());
 
-				  //Basic Calculation of  the Interest Amount By Month, Weekly and Daily
+				  // --- 4. Compute interest for this interval ---
+				  // Monthly: annual_rate/12 | Weekly: annual_rate/48 | Daily: annual_rate/336
 				 if(installment_interval == "Monthly"){
 	   				  interest_amount = round((loan_amount * interest_rate) / 12, 2);
 				 } else if(installment_interval == "Weekly"){
@@ -237,24 +260,25 @@ $(document).ready(function(){
 				 }
 				  
 				  
- 				 //check when  you add loan and the interest  it will be greater or lesser than the installment amount 
+ 				 // Cap the final installment so it never exceeds the remaining balance + interest.
 				  if((loan_amount + interest_amount) < installment_amount){
 					  installment_amount = loan_amount + interest_amount;
 				  }
 				  
 
-				  //  the interst amount of the data is  taken out the  installment amount 
+				  // Principal paid this period = installment minus interest portion.
 				  principal_interval_amount = installment_amount - interest_amount;
 				  principal_interval_amount = round(principal_interval_amount,2);
 
 
-				  //After that is calculate that you take  what is left in the loan amount
+				  // Reduce the outstanding balance by the principal paid.
 				  loan_amount = loan_amount - principal_interval_amount;
 				  loan_amount = round(loan_amount,2);
  				 
 
- 				   //quick calculation check to verify everything
+ 				   // Running grand total of all payments (used to derive total interest at the end).
 				  grand = round(parseFloat(installment_amount) + parseFloat(grand), 2);
+			 // Guard: if interest exceeds installment or any value is non-finite, abort.
 			 if(round(interest_amount,2) > round(installment_amount,2) ||  round(principal_interval_amount,2) < 0.00 || !isFloat(begin_loan_amount) || !isFloat(installment_amount) || !isFloat(interest_amount) || !isFloat(principal_interval_amount)){
 					  alert("An unexpected error occured, Please check inputs.");
 					$("#result").html("");
@@ -264,7 +288,7 @@ $(document).ready(function(){
 				 
 				 
 				 
-				  //This is where  when ever calculation is check and done the schedule is  displayed
+				  // --- 5. Append row to HTML table and CSV string ---
 				  schedulelist += `
 						<tr>
 						      <th scope="row">Payment `+duration_counter+`</th>
